@@ -12,8 +12,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # curl for health checks
+# Security: Update all packages to address CVEs (openssl, glibc, tiff, libpng, gdk-pixbuf, etc.)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    && apt-get upgrade -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Non-root user
