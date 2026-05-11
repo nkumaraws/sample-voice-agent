@@ -4,7 +4,8 @@
 # Build: docker build -t crm-agent .
 # Run:   docker run -p 8000:8000 -e CRM_API_URL=... crm-agent
 
-FROM python:3.12-slim
+# Using AWS ECR Public mirror to avoid Docker Hub rate limits
+FROM public.ecr.aws/docker/library/python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \

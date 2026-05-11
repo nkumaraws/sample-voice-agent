@@ -1,0 +1,50 @@
+{
+  "name": "voice-agent-security-rebuild",
+  "description": "Rebuild voice-agent container with security vulnerability fixes",
+  "source": {
+    "type": "GITHUB",
+    "location": "https://github.com/nkumaraws/sample-voice-agent.git",
+    "buildspec": "buildspec-voice-agent.yml",
+    "gitCloneDepth": 1,
+    "gitSubmodulesConfig": {
+      "fetchSubmodules": false
+    }
+  },
+  "sourceVersion": "refs/heads/fix/container-security-vulnerabilities",
+  "artifacts": {
+    "type": "NO_ARTIFACTS"
+  },
+  "cache": {
+    "type": "NO_CACHE"
+  },
+  "environment": {
+    "type": "LINUX_CONTAINER",
+    "image": "aws/codebuild/standard:7.0",
+    "computeType": "BUILD_GENERAL1_SMALL",
+    "environmentVariables": [
+      {
+        "name": "AWS_DEFAULT_REGION",
+        "value": "us-east-1",
+        "type": "PLAINTEXT"
+      },
+      {
+        "name": "ECR_REGISTRY",
+        "value": "972801262139.dkr.ecr.us-east-1.amazonaws.com",
+        "type": "PLAINTEXT"
+      },
+      {
+        "name": "ECR_REPOSITORY",
+        "value": "cdk-hnb659fds-container-assets-972801262139-us-east-1",
+        "type": "PLAINTEXT"
+      }
+    ],
+    "privilegedMode": true,
+    "imagePullCredentialsType": "CODEBUILD"
+  },
+  "serviceRole": "arn:aws:iam::972801262139:role/service-role/codebuild-service-role",
+  "logsConfig": {
+    "cloudWatchLogs": {
+      "status": "ENABLED"
+    }
+  }
+}

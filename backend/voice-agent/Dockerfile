@@ -13,7 +13,8 @@
 # ========================
 # Stage 1: Build / Install
 # ========================
-FROM python:3.12-slim AS builder
+# Using AWS ECR Public mirror to avoid Docker Hub rate limits
+FROM public.ecr.aws/docker/library/python:3.12-slim AS builder
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
@@ -40,7 +41,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # ========================
 # Stage 2: Runtime
 # ========================
-FROM python:3.12-slim
+# Using AWS ECR Public mirror to avoid Docker Hub rate limits
+FROM public.ecr.aws/docker/library/python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
