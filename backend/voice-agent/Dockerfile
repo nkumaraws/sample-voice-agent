@@ -13,16 +13,19 @@
 # ========================
 # Stage 1: Build / Install
 # ========================
-FROM python:3.12-slim AS builder
+# Using AWS ECR Public mirror to avoid Docker Hub rate limits
+FROM public.ecr.aws/docker/library/python:3.12-slim AS builder
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # Build tools for any native extensions (gcc, python3-dev)
+# Security: Update all packages to address CVEs (openssl, glibc, tiff, libpng, gdk-pixbuf, etc.)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     python3-dev \
+    && apt-get upgrade -y \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -38,18 +41,21 @@ RUN pip install --no-cache-dir -r requirements.txt
 # ========================
 # Stage 2: Runtime
 # ========================
-FROM python:3.12-slim
+# Using AWS ECR Public mirror to avoid Docker Hub rate limits
+FROM public.ecr.aws/docker/library/python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 # Runtime-only system dependencies (no gcc/python3-dev)
+# Security: Update all packages to address CVEs (openssl, glibc, tiff, libpng, gdk-pixbuf, etc.)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     # Audio processing
     libsndfile1 \
     ffmpeg \
     # Networking (health checks)
     curl \
+    && apt-get upgrade -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user for security
