@@ -14,7 +14,7 @@
 # Stage 1: Build / Install
 # ========================
 # Using AWS ECR Public mirror to avoid Docker Hub rate limits
-FROM public.ecr.aws/docker/library/python:3.12-slim AS builder
+FROM public.ecr.aws/docker/library/python:3.13-slim AS builder
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
@@ -22,10 +22,16 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 # Build tools for any native extensions (gcc, python3-dev)
 # Security: Update all packages to address CVEs (openssl, glibc, tiff, libpng, gdk-pixbuf, etc.)
+# Explicitly upgrade critical packages: mbedtls, gnutls28, curl, libxml2
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     python3-dev \
     && apt-get upgrade -y \
+    && apt-get install -y --only-upgrade \
+        libmbedtls14 libmbedcrypto7 libmbedx509-1 \
+        libgnutls30 \
+        libcurl4 curl \
+        libxml2 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -42,13 +48,14 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Stage 2: Runtime
 # ========================
 # Using AWS ECR Public mirror to avoid Docker Hub rate limits
-FROM public.ecr.aws/docker/library/python:3.12-slim
+FROM public.ecr.aws/docker/library/python:3.13-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 # Runtime-only system dependencies (no gcc/python3-dev)
 # Security: Update all packages to address CVEs (openssl, glibc, tiff, libpng, gdk-pixbuf, etc.)
+# Explicitly upgrade critical packages: mbedtls, gnutls28, curl, libxml2
 RUN apt-get update && apt-get install -y --no-install-recommends \
     # Audio processing
     libsndfile1 \
@@ -56,6 +63,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Networking (health checks)
     curl \
     && apt-get upgrade -y \
+    && apt-get install -y --only-upgrade \
+        libmbedtls14 libmbedcrypto7 libmbedx509-1 \
+        libgnutls30 \
+        libcurl4 curl \
+        libxml2 \
+        libnghttp2-14 \
+        libjxl0.7 \
+        libcdio19 \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user for security
