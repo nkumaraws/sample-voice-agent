@@ -4,7 +4,8 @@
 # Build: docker build -t crm-agent .
 # Run:   docker run -p 8000:8000 -e CRM_API_URL=... crm-agent
 
-FROM python:3.12-slim
+# Using AWS ECR Public mirror to avoid Docker Hub rate limits
+FROM public.ecr.aws/docker/library/python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -12,8 +13,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # curl for health checks
+# Security: Update all packages to address CVEs (openssl, glibc, tiff, libpng, gdk-pixbuf, etc.)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    && apt-get upgrade -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Non-root user
